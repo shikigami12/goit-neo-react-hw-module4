@@ -3,17 +3,18 @@ import { ImageCard } from '../ImageCard/ImageCard.tsx';
 import css from './ImageGallery.module.css';
 
 interface ImageGalleryProps {
-  images: Image[]
+  images: Image[];
+  onImageClick: (image: Image) => void;
 }
 
-export const ImageGallery = ({images}: ImageGalleryProps) => {
+export const ImageGallery = ({ images, onImageClick }: ImageGalleryProps) => {
   return (
     <>
       <div className={css.container}>
         <ul className={css.gallery}>
-          {images.map((image) => (
+          {images.map(image => (
             <li key={image.id}>
-              <ImageCard image={image} />
+              <ImageCard image={image} onClick={onImageClick}/>
             </li>
           ))}
         </ul>
