@@ -4,13 +4,14 @@ import 'modern-normalize/modern-normalize.css';
 import { SearchBar } from './components/SearchBar/SearchBar.tsx';
 import { UnsplashApiClient } from './clients/UnsplashApiClient.ts';
 import { UnsplashResponse } from './models/Unsplash.response.ts';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Image } from './models/Image.ts';
 import { ImageGallery } from './components/ImageGallery/ImageGallery.tsx';
 import { useToggle } from './hooks/useToggle.ts';
 import { Loader } from './components/Loader/Loader.tsx';
 import { ErrorMessage } from './components/ErrorMessage/ErrorMessage.tsx';
 import { ImageModal } from './components/ImageModal/ImageModal.tsx';
+import { LoadMoreButton } from './components/LoadMoreButton/LoadMoreButton.tsx';
 
 function App() {
   const unsplashApiClient = new UnsplashApiClient();
@@ -23,9 +24,24 @@ function App() {
   const [isModalOpen, toggleModal] = useToggle(false);
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     Modal.setAppElement('#root');
   }, []);
+
+  useEffect(() => {
+    if (images.length > 0 && page > 1) {
+      scrollToBottom();
+    }
+    if (isLoading && page > 1) {
+      scrollToBottom();
+    }
+  }, [images, isLoading]);
+
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const handlerOnSearch = async (query: string) => {
     try {
@@ -83,9 +99,7 @@ function App() {
         )}
         {isLoading && <Loader />}
         {!error && hasMoreImages && !isLoading && (
-          <button className={css.loadMoreButton} onClick={handleLoadMore}>
-            Load More
-          </button>
+          <LoadMoreButton onClick={handleLoadMore} />
         )}
         {error && <ErrorMessage message={error} />}
         {selectedImage && (
@@ -95,6 +109,7 @@ function App() {
             image={selectedImage}
           />
         )}
+        <div ref={bottomRef} />
       </div>
     </>
   );
