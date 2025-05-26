@@ -10,11 +10,13 @@ export const SearchBar = ({ onSearchSubmit }: SearchBarProps) => {
   return (
     <>
       <header>
-        <form onSubmit={(event) => {
-          event.preventDefault();
-          onSearchSubmit(searchInputRef.current?.value ?? "")
-        }}
-        className={css.search_form}>
+        <form
+          onSubmit={event => {
+            event.preventDefault();
+            onSearchSubmit(searchInputRef.current?.value ?? '');
+          }}
+          className={css.search_form}
+        >
           <input
             ref={searchInputRef}
             className={css.search_input}

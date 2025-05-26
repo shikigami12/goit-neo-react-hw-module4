@@ -14,7 +14,7 @@ export const ImageGallery = ({ images, onImageClick }: ImageGalleryProps) => {
         <ul className={css.gallery}>
           {images.map(image => (
             <li key={image.id}>
-              <ImageCard image={image} onClick={onImageClick}/>
+              <ImageCard image={image} onClick={onImageClick} />
             </li>
           ))}
         </ul>

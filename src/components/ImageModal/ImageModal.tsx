@@ -8,18 +8,23 @@ interface ImageModalProps {
   image: Image;
 }
 
-export const ImageModal = ({image, onClose, isOpen}: ImageModalProps) => {
-  return <>
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onClose}
-      contentLabel={image.description}
-      className={css.modal_content}
-      overlayClassName={css.modal + ' ' + css.backdrop}
-      shouldCloseOnOverlayClick={true}
-
-    >
-      <img src={image.urls.full} alt={image.description ?? "No description"} className={css.modal_image_style} />
-    </Modal>
-  </>;
+export const ImageModal = ({ image, onClose, isOpen }: ImageModalProps) => {
+  return (
+    <>
+      <Modal
+        isOpen={isOpen}
+        onRequestClose={onClose}
+        contentLabel={image.description}
+        className={css.modal_content}
+        overlayClassName={css.modal + ' ' + css.backdrop}
+        shouldCloseOnOverlayClick={true}
+      >
+        <img
+          src={image.urls.full}
+          alt={image.description ?? 'No description'}
+          className={css.modal_image_style}
+        />
+      </Modal>
+    </>
+  );
 };

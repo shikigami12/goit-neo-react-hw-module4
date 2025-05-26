@@ -8,13 +8,15 @@ export class UnsplashApiClient {
   private readonly _client = axios.create({
     baseURL: this.BASE_URL,
     headers: {
-      'Authorization': `Client-ID ${this.ACCESS_KEY}`
+      Authorization: `Client-ID ${this.ACCESS_KEY}`,
     },
   });
 
   constructor() {
     if (!this.APP_ID || !this.ACCESS_KEY) {
-      throw new Error('Unsplash API credentials are not set in environment variables.');
+      throw new Error(
+        'Unsplash API credentials are not set in environment variables.'
+      );
     }
   }
 
@@ -24,8 +26,8 @@ export class UnsplashApiClient {
         params: {
           query,
           page,
-          per_page: this.DEFAULT_PAGE_SIZE
-        }
+          per_page: this.DEFAULT_PAGE_SIZE,
+        },
       });
       return response.data;
     } catch (error) {

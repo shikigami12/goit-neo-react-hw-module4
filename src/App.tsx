@@ -25,7 +25,7 @@ function App() {
 
   useEffect(() => {
     Modal.setAppElement('#root');
-  }, [])
+  }, []);
 
   const handlerOnSearch = async (query: string) => {
     try {
@@ -78,15 +78,23 @@ function App() {
     <>
       <div className={css.container}>
         <SearchBar onSearchSubmit={handlerOnSearch} />
+        {!error && images.length > 0 && (
+          <ImageGallery images={images} onImageClick={handleImageClick} />
+        )}
         {isLoading && <Loader />}
-        {!error && images.length > 0 && <ImageGallery images={images} onImageClick={handleImageClick} />}
         {!error && hasMoreImages && !isLoading && (
           <button className={css.loadMoreButton} onClick={handleLoadMore}>
             Load More
           </button>
         )}
         {error && <ErrorMessage message={error} />}
-        {selectedImage && <ImageModal isOpen={isModalOpen} onClose={handleModalClose} image={selectedImage} /> }
+        {selectedImage && (
+          <ImageModal
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            image={selectedImage}
+          />
+        )}
       </div>
     </>
   );
