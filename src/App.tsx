@@ -1,72 +1,45 @@
-import { Description } from './components/Description/Description.tsx';
-import { Feedback } from './components/Feedback/Feedback.tsx';
-import { Options } from './components/Options/Options.tsx';
-import { Notification } from './components/Notification/Notification.tsx';
-import { OptionsEnum } from './components/Options/OptionsEnum.tsx'; // Assuming this enum exists
-
 import css from './App.module.css';
-import { useEffect, useState } from 'react';
+import 'modern-normalize/modern-normalize.css'
+import { SearchBar } from './components/SearchBar/SearchBar.tsx';
+import { UnsplashApiClient } from './clients/UnsplashApiClient.ts';
+import { UnsplashResponse } from './models/Unsplash.response.ts';
+import { useState } from 'react';
+import { Image } from './models/Image.ts';
+import { ImageGallery } from './components/ImageGallery/ImageGallery.tsx';
+import { useToggle } from './hooks/useToggle.ts';
+import { Loader } from './components/Loader/Loader.tsx';
 
-interface FeedbacksState {
-  good: number;
-  neutral: number;
-  bad: number;
-}
 
 function App() {
-  const storageKey = 'feedbacks';
-  const [feedbacks, setFeedbacks] = useState<FeedbacksState>(() => {
-    const storedValue = window.localStorage.getItem(storageKey);
-    if (storedValue) {
-      try {
-        return JSON.parse(storedValue) as FeedbacksState;
-      } catch (error) {
-        console.error('Failed to parse feedbacks from localStorage:', error);
-      }
-    }
-    return { good: 0, neutral: 0, bad: 0 };
-  });
+  const unsplashApiClient = new UnsplashApiClient();
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState<Image[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, toggleLoading] = useToggle(false);
 
-  useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(feedbacks));
-  }, [feedbacks]);
+  const handlerOnSearch = async (query: string) => {
+    setImages([]);
+    setQuery(query);
+    toggleLoading();
+    const apiResponse: UnsplashResponse = await unsplashApiClient.searchPhotos(query, page);
+    setTotalPages(apiResponse.total_pages);
+    toggleLoading();
+    setImages(apiResponse.results)
+  }
 
-  const updateFeedback = (feedbackType: string) => {
-    setFeedbacks(currentFeedbacks => {
-      switch (feedbackType) {
-        case OptionsEnum.GOOD:
-          return { ...currentFeedbacks, good: currentFeedbacks.good + 1 };
-        case OptionsEnum.NEUTRAL:
-          return { ...currentFeedbacks, neutral: currentFeedbacks.neutral + 1 };
-        case OptionsEnum.BAD:
-          return { ...currentFeedbacks, bad: currentFeedbacks.bad + 1 };
-        case OptionsEnum.RESET:
-          return { good: 0, neutral: 0, bad: 0 };
-        default:
-          return currentFeedbacks;
-      }
-    });
-  };
-
-  const totalFeedback = feedbacks.good + feedbacks.neutral + feedbacks.bad;
+  const handleLoadMore = async () => {
+    setPage(prev => prev + 1);
+    const apiResponse: UnsplashResponse = await unsplashApiClient.searchPhotos(query, page);
+    console.log(apiResponse);
+  }
 
   return (
     <>
       <div className={css.container}>
-        <Description />
-        <Options onClick={updateFeedback} resetEnabled={totalFeedback > 0} />
-        {totalFeedback > 0 && (
-          <Feedback
-            good={feedbacks.good}
-            bad={feedbacks.bad}
-            neutral={feedbacks.neutral}
-            total={totalFeedback}
-            positivePercentage={Math.round(
-              (feedbacks.good / totalFeedback) * 100
-            )}
-          />
-        )}
-        {totalFeedback === 0 && <Notification>No feedback yet.</Notification>}
+        <SearchBar onSearchSubmit={handlerOnSearch} />
+        {isLoading && <Loader />}
+        {images.length > 0 && <ImageGallery images={images} /> }
       </div>
     </>
   );
