@@ -8,6 +8,7 @@ import { Image } from './models/Image.ts';
 import { ImageGallery } from './components/ImageGallery/ImageGallery.tsx';
 import { useToggle } from './hooks/useToggle.ts';
 import { Loader } from './components/Loader/Loader.tsx';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage.tsx';
 
 function App() {
   const unsplashApiClient = new UnsplashApiClient();
@@ -16,19 +17,21 @@ function App() {
   const [images, setImages] = useState<Image[]>([]);
   const [hasMoreImages, setHasMoreImages] = useState(false);
   const [isLoading, toggleLoading] = useToggle(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handlerOnSearch = async (query: string) => {
     try {
+      setError(null);
       setImages([]);
       setQuery(query);
       setPage(1);
       toggleLoading();
-
       const apiResponse: UnsplashResponse = await unsplashApiClient.searchPhotos(query, 1);
       setImages(apiResponse.results);
       setHasMoreImages(apiResponse.total_pages > 1);
     } catch (error) {
       console.error('Error searching images:', error);
+      setError('Failed to load images. Please try again later.');
     } finally {
       toggleLoading();
     }
@@ -45,6 +48,7 @@ function App() {
       setHasMoreImages(nextPage < apiResponse.total_pages);
     } catch (error) {
       console.error('Error loading more images:', error);
+      setError('Failed to load more images. Please try again later.');
     } finally {
       toggleLoading();
     }
@@ -54,8 +58,8 @@ function App() {
     <div className={css.container}>
       <SearchBar onSearchSubmit={handlerOnSearch} />
       {isLoading && <Loader />}
-      {images.length > 0 && <ImageGallery images={images} />}
-      {hasMoreImages && !isLoading && (
+      {!error && images.length > 0 && <ImageGallery images={images} />}
+      {!error && hasMoreImages && !isLoading && (
         <button
           className={css.loadMoreButton}
           onClick={handleLoadMore}
@@ -63,6 +67,7 @@ function App() {
           Load More
         </button>
       )}
+      {error && <ErrorMessage message={error} /> }
     </div>
   );
 }
