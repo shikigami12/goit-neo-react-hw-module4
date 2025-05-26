@@ -5,11 +5,13 @@ interface LoadMoreButtonProps {
 }
 
 export const LoadMoreButton = ({ onClick }: LoadMoreButtonProps) => {
-  return <>
-    <div className={css.container}>
-      <button className={css.loadMoreButton} onClick={() => onClick()}>
-        Load More
-      </button>
-    </div>
-  </>;
+  return (
+    <>
+      <div className={css.container}>
+        <button className={css.loadMoreButton} onClick={() => onClick()}>
+          Load More
+        </button>
+      </div>
+    </>
+  );
 };
