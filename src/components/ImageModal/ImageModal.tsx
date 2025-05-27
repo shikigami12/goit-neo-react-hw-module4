@@ -14,7 +14,6 @@ export const ImageModal = ({ image, onClose, isOpen }: ImageModalProps) => {
       <Modal
         isOpen={isOpen}
         onRequestClose={onClose}
-        contentLabel={image.description}
         className={css.modal_content}
         overlayClassName={css.modal + ' ' + css.backdrop}
         shouldCloseOnOverlayClick={true}

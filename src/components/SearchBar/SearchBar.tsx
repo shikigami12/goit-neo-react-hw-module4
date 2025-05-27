@@ -13,7 +13,9 @@ export const SearchBar = ({ onSearchSubmit }: SearchBarProps) => {
         <form
           onSubmit={event => {
             event.preventDefault();
-            onSearchSubmit(searchInputRef.current?.value ?? '');
+            if (searchInputRef.current?.value) {
+              onSearchSubmit(searchInputRef.current?.value);
+            }
           }}
           className={css.search_form}
         >

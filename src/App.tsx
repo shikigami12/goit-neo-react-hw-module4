@@ -39,45 +39,41 @@ function App() {
     }
   }, [images, isLoading]);
 
+  useEffect(() => {
+    if(page === 1) {
+      setImages([]);
+    }
+    
+    const fetchImages = async () => {
+      try {
+        const apiResponse: UnsplashResponse = await unsplashApiClient.searchPhotos(query, page);
+        setImages(prevImages => [...prevImages, ...apiResponse.results]);
+        setHasMoreImages(apiResponse.total_pages > page);
+      } catch (error) {
+        console.error('Error searching images:', error);
+        setError('Failed to load images. Please try again later.');
+      } finally {
+        toggleLoading();
+      }
+    };
+    if (query) {
+      toggleLoading();
+      fetchImages();
+    }
+  }, [query, page]);
+
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handlerOnSearch = async (query: string) => {
-    try {
-      setError(null);
-      setImages([]);
-      setQuery(query);
-      setPage(1);
-      toggleLoading();
-      const apiResponse: UnsplashResponse =
-        await unsplashApiClient.searchPhotos(query, 1);
-      setImages(apiResponse.results);
-      setHasMoreImages(apiResponse.total_pages > 1);
-    } catch (error) {
-      console.error('Error searching images:', error);
-      setError('Failed to load images. Please try again later.');
-    } finally {
-      toggleLoading();
-    }
+    setError(null);
+    setQuery(query);
+    setPage(1);
   };
 
   const handleLoadMore = async () => {
-    try {
-      toggleLoading();
-      const nextPage = page + 1;
-      const apiResponse: UnsplashResponse =
-        await unsplashApiClient.searchPhotos(query, nextPage);
-
-      setImages(prevImages => [...prevImages, ...apiResponse.results]);
-      setPage(nextPage);
-      setHasMoreImages(nextPage < apiResponse.total_pages);
-    } catch (error) {
-      console.error('Error loading more images:', error);
-      setError('Failed to load more images. Please try again later.');
-    } finally {
-      toggleLoading();
-    }
+    setPage(page => page + 1);
   };
 
   const handleImageClick = (image: Image) => {
